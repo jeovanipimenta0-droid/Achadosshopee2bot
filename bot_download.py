@@ -38,13 +38,14 @@ def download_video(url):
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "Olá! Cole o link do TikTok ou Shopee Video aqui para eu baixar.")
+    bot.reply_to(message, "Olá! Cole o link do TikTok ou Shopee Video aqui.")
 
 @bot.message_handler(func=lambda m: True)
 def handle(message):
     url = message.text.strip()
-    if "tiktok.com" in url or "shopee.com.br/universal-link/video" in url:
-        msg = bot.reply_to(message, "⏳ Processando seu vídeo... aguarde.")
+    # Lista atualizada para aceitar s.shopee, br.shp.ee e links normais
+    if any(site in url for site in ["tiktok.com", "shopee.com", "shp.ee"]):
+        msg = bot.reply_to(message, "⏳ Link detectado! Baixando vídeo...")
         file = download_video(url)
         if file:
             try:
@@ -53,13 +54,12 @@ def handle(message):
                 bot.delete_message(message.chat.id, msg.message_id)
                 os.remove(file)
             except:
-                bot.reply_to(message, "Erro ao enviar o arquivo.")
+                bot.reply_to(message, "Erro ao enviar o vídeo.")
         else:
-            bot.reply_to(message, "Não consegui baixar. Verifique se o link é público.")
+            bot.reply_to(message, "Não consegui baixar este vídeo específico.")
     else:
-        bot.reply_to(message, "Por favor, envie um link válido do TikTok ou Shopee Video.")
+        bot.reply_to(message, "Por favor, envie um link válido do TikTok ou Shopee.")
 
 if __name__ == "__main__":
     keep_alive()
     bot.infinity_polling()
-
